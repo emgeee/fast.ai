@@ -1,3 +1,12 @@
+"""
+First run (no changes): 360/360 [==============================] - 155s 430ms/step - loss: 0.1149 - acc: 0.9686 - val_loss: 0.0503 - val_acc: 0.9815
+Changing Adam optimizer lr to 0.0001: 360/360 [==============================] - 157s 436ms/step - loss: 0.2486 - acc: 0.9133 - val_loss: 0.0666 - val_acc: 0.9760
+Remove 1500 images from training set: 180/180 [==============================] - 146s 809ms/step - loss: 0.1191 - acc: 0.9670 - val_loss: 0.0639 - val_acc: 0.9805
+using 3000 images in validation set: 149/149 [==============================] - 144s 965ms/step - loss: 0.1385 - acc: 0.9621 - val_loss: 0.0556 - val_acc: 0.9838
+
+
+
+"""
 import os, json, inspect, sys
 # os.environ["THEANO_FLAGS"] = "device=cpu"
 
@@ -26,7 +35,7 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D, ZeroPadding2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
-PATH = 'data/dogs_cats_competition/'
+PATH = 'data/'
 FILES_PATH = 'http://files.fast.ai/models/'
 CLASS_FILE = 'imagenet_class_index.json'
 VGG_MEAN = np.array([123.68, 116.779, 103.939]).reshape((3, 1, 1))
@@ -119,9 +128,9 @@ def main():
                            FILES_PATH + 'vgg16.h5',
                            cache_subdir='models')
 
-    batch_size = 64
+    batch_size = 128
     train_batches = get_batches('train', batch_size=batch_size)
-    # valid_batches = get_batches('valid', batch_size=batch_size*2)
+    valid_batches = get_batches('valid', batch_size=batch_size)
 
     classes = list(iter(train_batches.class_indices)) # get a list of all the class labels
     print(classes)
@@ -129,26 +138,19 @@ def main():
     # Assemble a Keras model with the pretrained weights
     model = vgg_16()
 
+    ######################
     # # Load pretrained weights into the model
-    model.load_weights(weight_path)
-    configure_model(model, 2)
-
+    # model.load_weights(weight_path)
+    # configure_model(model, 2)
+    #
     # # Remove the final layer and retrain it using dog/cat data
     # retrain_model(model,
     #               train_batches,
     #               valid_batches,
     #               batch_size)
     #
-    # # get a list of all the class labels
-    # classes = list(iter(train_batches.class_indices))
-    # for c in train_batches.class_indices:
-    #     classes[train_batches.class_indices[c]] = c
-
+    ####################3
     model.load_weights(RETRAINED_FNAME)
-    # print_classes(model)
-
-    # keras.utils.plot_model(model, to_file='model.png')
-    # predict_batch(model, classes, valid_batches)
 
     print('model and weights loaded...')
     test_batches = get_batches('test', batch_size=batch_size, shuffle=False, class_mode=None)

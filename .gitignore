@@ -12,3 +12,4 @@ fast-ai-remove.sh
 *.csv
 *.jpg
 *.png
+*.zip
